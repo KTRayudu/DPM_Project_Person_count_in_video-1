@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Processing</title>
+{% endblock %}
+
+{% block content %}
+<!--- This portion will be displayed if any flashed messages are stored-->
+<p>
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+</p>
+<!--- This portion will be displayed if any flashed messages are stored-->
+
+<!--- Display the Bokeh app -->
+<h1>Live graph</h1>
+<div style="display: flex; justify-content: center;">
+  {{ script|safe }}
+</div>
+<!--- Display the Bokeh app -->
+
+<!-- Display the video which is being processed-->
+<center><div style="margin: 10px auto;">
+  <video autoplay="True" controls preload="preload">
+    <source src="{{ url_for('display_video', filename=filename) }}" type="video/mp4"></source>
+  </video>
+</div></center>
+<!-- Display the video which is being processed-->
+
+{% endblock %}

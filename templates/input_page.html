@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Video Statistics</title>
+{% endblock %}
+
+{% block content %}
+<h3 style="font-family: 'Times New Roman', Times, serif;text-align: center;color: brown;"> Welcome to the website please put in the link of video or upload the video which you want to analyse. </h3>
+<center><img src="{{img}}" alt="Video Analysis photo"> </center>
+
+<form action="/action_page" method="POST" enctype="multipart/form-data" style="text-align: center;color: blueviolet;"> <!--- redirect to another page where video processing should take place  -->
+    <label for="fname">
+        <p>Enter your first name</p><br>
+    </label>
+    <input type="text" name="fname">
+    <label for="lname">
+        <p>Enter your last name</p><br>
+    </label>
+    <input type="text" name="lname">
+    <label for="live">
+        <p title="Results will be generated while running the video">Do you want real time processing ?</p>
+    </label>
+    <input type="radio" id="live_yes" name="processing_type">
+    <label for="live_yes">Realtime Processing</label><br>
+    <input type="radio" id="live_no"  name="processing_type">
+    <label for="live_no">Offline Processing</label><br>
+    <label for="video">
+        <p style="text-align: center;" title="only mp4 allowed"> Please upload your video here:- </p>
+    </label>
+    <input type="file" id="myfile" name="file" accept="video/.mp4" autocomplete="off" required> <br><br>
+    <input type="submit" value="submit">
+    <input type="reset"><br><br><br>
+    <a href="https://onlinevideoconverter.com">To convert your video to mp4 format click here !</a>
+</form>
+<footer>
+    <p style="text-align: center;">Website created using <a href="https://flask.palletsprojects.com/en/2.0.x/">Flask</a></p>
+    <p style="color: crimson; text-align: center;">Work in progress</p>
+</footer>
+{% endblock %}
