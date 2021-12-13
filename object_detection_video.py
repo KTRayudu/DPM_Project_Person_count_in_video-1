@@ -4,6 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 from mpu.string import str2bool
 from matplotlib.animation import FuncAnimation
+import datetime
 
 def load_pretrained_model():
     config_file = 'Object Detection/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt' # configuration file
@@ -30,6 +31,7 @@ def live_person_count(frame):
     x_vals = data_file.index.values # get x values
     y_vals_people = data_file['Person Count'].values # get person count values
     y_vals_motion = data_file['Activity Indicator']
+    x_sec=data_file['Seconds']
     plt.cla()
     plt.plot(x_vals, y_vals_people, label='Live Person Count')
     plt.fill_between(x_vals, y_vals_motion, alpha=0.5, step='pre', color='r')
@@ -87,8 +89,9 @@ def real_time_detection(model, classLabels, video_src='videos/street_video_1.mp4
     cap = cv2.VideoCapture(video_src) # type 0 for live webcam feed detection
     cap.set(cv2.CAP_PROP_POS_FRAMES,start_frame-1)
     spatial_info = pd.DataFrame({'Person Count':[0],
-                                  'Activity Indicator':[False]})
+                                  'Activity Indicator':[False],'Seconds':[0]})
     spatial_info.to_csv(csv_location,sep=',',index=True, index_label='Frame Number') # Begin with empty csv file
+    fps_start_time = datetime.datetime.now()
     while True:
         _, frame = cap.read()
         cap_v = cap
@@ -102,7 +105,10 @@ def real_time_detection(model, classLabels, video_src='videos/street_video_1.mp4
         font = cv2.FONT_HERSHEY_PLAIN
         people_in_frame = Person_count(ClassesPresent=ClassIndex, ClassLabels=classLabels)
         Motion = motion_present(frame1=frame, frame2=frame2)
-        spatial_info.loc[len(spatial_info.index)] = [people_in_frame, Motion] # update the dataframe
+        fps_end_time = datetime.datetime.now()
+        time_diff = fps_end_time - fps_start_time
+        sec=time_diff.seconds
+        spatial_info.loc[len(spatial_info.index)] = [people_in_frame, Motion,sec] # update the dataframe
         #with global_holder.lock():
         spatial_info.to_csv(path_or_buf=csv_location,sep=',',index=True, index_label='Frame Number') # update the csv
         if(len(ClassIndex) != 0):
