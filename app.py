@@ -13,6 +13,7 @@ import pandas as pd
 import cProfile
 from bokeh.plotting import figure
 
+
 app = Flask(__name__)
 app.secret_key = "secret key"
 # Setting up video path for user uploaded video
@@ -21,26 +22,29 @@ app.config['UPLOAD_FOLDER'] = vidFolder
 app.config['MAX _CONTENT_LENGTH'] = 100*1024*1024
 
 def bkapp(doc):
-    DataSource = ColumnDataSource(dict(Frame_Number=[],Person_Present=[],Frame_Active=[]))
-    p = figure(width=900, height=350) # A figure on which plots will be generated
-    p.circle(x="Frame_Number",y="Person_Present",source=DataSource)
-    p.line(x="Frame_Number",y="Person_Present", source=DataSource, legend_label="Person Counter", line_width=2, line_color="blue")
-    p.step(x="Frame_Number",y="Frame_Active", source=DataSource, legend_label="Frame Active", line_width=1, line_color="red")
-    p.legend.title = "Video Statistics"
-    p.xaxis.axis_label = "Frame Number"
-    p.yaxis.axis_label = "Person Count"
+   DataSource = ColumnDataSource(dict(Frame_Number=[],Person_Present=[],Frame_Active=[],Seconds=[]))
 
-    def update():
+                    ### Live Chart Creation ###
+   p = figure(title='Live Analysis of video',width=900, height=350) # A figure on which plots will be generated
+   p.circle(x="Seconds",y="Person_Present",source=DataSource)
+   p.line(x="Seconds",y="Person_Present", source=DataSource, legend_label="Person Counter", line_width=2, line_color="blue")
+   p.step(x="Seconds",y="Frame_Active", source=DataSource, legend_label="Frame Active", line_width=1, line_color="red")
+   p.legend.title = "Video Statistics"
+   p.legend.location = "top_left" # Causing NSWindow drag region error!
+   p.legend.click_policy="hide"
+   p.xaxis.axis_label = "Seconds"
+   p.yaxis.axis_label = "Person Count"
+   def update():
         # Need to update source stream of the figure
         # Only extract the last row of the dynamic CSV file
         last_row = pd.read_csv('Data Files/spatial.csv',sep=',').iloc[-1]
-        Curr_frame, PersonCount, ActivityIndicator = last_row[0], last_row[1], last_row[2]
-        print(f'Current Frame:-{Curr_frame}, Person Present:-{PersonCount}.')
-        new_data = dict(Frame_Number=[Curr_frame],Person_Present=[PersonCount],Frame_Active=[ActivityIndicator])
+        Curr_frame, PersonCount, ActivityIndicator,seconds = last_row[0], last_row[1], last_row[2],last_row[3]
+        print(f'Current seconds:-{seconds}, Person Present:-{PersonCount}.')
+        new_data = dict(Frame_Number=[Curr_frame],Person_Present=[PersonCount],Frame_Active=[ActivityIndicator],Seconds=[seconds])
         DataSource.stream(new_data,rollover=200)
         
-    doc.add_root(p)
-    doc.add_periodic_callback(update,1000)
+   doc.add_root(p)
+   doc.add_periodic_callback(update,1000)
     #doc.theme = Theme(filename="theme.yaml")
 
 @app.route('/', methods=["GET"]) # Only get method is allowed for input page
